@@ -6,19 +6,22 @@ namespace FlightPlaneris.Controllers
 {
     [Route("testing-api")]
     [ApiController]
-    public class CleanUpAPIController : ControllerBase
+    public class CleanUpApiController : ControllerBase
     {
         private readonly FlightStorage _storage;
-
-        public CleanUpAPIController()
+        /// <inheritdoc />
+        public CleanUpApiController()
         {
             _storage = new FlightStorage();
         }
 
         [Route("clear")]
         [HttpPost]
+
         public IActionResult Clear()
-        {
+        {   
+            _storage.Clear();
+
             return Ok();
         }
     }

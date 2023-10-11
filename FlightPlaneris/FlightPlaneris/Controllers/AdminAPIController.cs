@@ -9,11 +9,13 @@ namespace FlightPlaneris.Controllers
     [Authorize]
     [Route("admin-api")]
     [ApiController]
-    public class AdminAPIController : ControllerBase
+    public class AdminApiController : ControllerBase
     {
         private readonly FlightStorage _storage;
+        private static readonly object AddLock = new();
+        private static readonly object DeleteLock = new();
 
-        public AdminAPIController()
+        public AdminApiController()
         {
             _storage = new FlightStorage();
         }
@@ -29,9 +31,44 @@ namespace FlightPlaneris.Controllers
         [HttpPut]
         public IActionResult PutFlights(Flights flight)
         {
-            _storage.AddFlight(flight);
+            lock (AddLock)
+            {
+                try
+                {
+                    _storage.AddFlight(flight);
+                    return Created("", flight);
+                }
+                catch (InvalidFlightException)
+                {
+                    return BadRequest();
+                }
+                catch (WrongAirportException)
+                {
+                    return BadRequest();
+                }
+                catch (WrongDateException)
+                {
+                    return BadRequest();
+                }
+                catch (DuplicateFlightException)
+                {
+                    return Conflict();
+                }
+            }
+        }
 
-            return Created("",flight);
+        [Route("flights/{id}")]
+        [HttpDelete]
+        public IActionResult DeleteFlights(int id)
+        {
+            lock (DeleteLock)
+            {
+            
+
+                _storage.DeleteById(id);
+
+                return Ok();
+            }
         }
     }
 }
