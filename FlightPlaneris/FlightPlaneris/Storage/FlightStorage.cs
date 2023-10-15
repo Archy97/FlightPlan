@@ -1,5 +1,6 @@
 ﻿using FlightPlaneris.Module;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightPlaneris.Storage
 {
@@ -7,7 +8,19 @@ namespace FlightPlaneris.Storage
     {
         private static List<Flights> _flightStorage = new List<Flights>();
         private static int _id;
-       
+        private readonly FlightPlannerDbContext _context;
+
+        public FlightStorage(FlightPlannerDbContext context)
+        {
+            _context = context;
+        }
+
+        public Flights GetFlight(int id)
+        {
+            return   _context.Flights.
+                Include(f => f.From).
+                Include(f => f.To).FirstOrDefault(f => f.Id == id);
+        }
 
         public void AddFlight(Flights flight)
         {
@@ -35,7 +48,7 @@ namespace FlightPlaneris.Storage
                 throw new WrongDateException();
             }
 
-            var duplicate =_flightStorage.Where(f =>
+            var duplicate = _context.Flights.Where(f =>
                 f.From.AirportCode.Equals(flight.From.AirportCode) &&
                 f.DepartureTime.Equals(flight.DepartureTime) &&
                 f.To.AirportCode.Equals(flight.To.AirportCode) &&
@@ -47,26 +60,30 @@ namespace FlightPlaneris.Storage
                 throw new DuplicateFlightException();
             }
 
-            flight.Id = _id++;
-            _flightStorage.Add(flight);
+            _context.Flights.Add(flight);
+            _context.SaveChanges();
         }
 
-        public bool DeleteById(int id)
+        public void DeleteById(int id)
         {
-            Flights flightToDelete = _flightStorage.FirstOrDefault(f => f.Id == id);
+
+            var flightToDelete = _context.Flights.FirstOrDefault(f => f.Id == id);
 
             if (flightToDelete != null)
             {
-                _flightStorage.Remove(flightToDelete);
-                return true; 
+                _context.Flights.Remove(flightToDelete);
+                _context.SaveChanges();
+               
             }
 
-            return false; 
+            
         }
 
         public void Clear()
         {
-            _flightStorage.Clear();
+            _context.Flights.RemoveRange(_context.Flights);
+            _context.Airports.RemoveRange(_context.Airports);
+            _context.SaveChanges();
         }
 
         public Flights SearchAirport(string search)
@@ -80,7 +97,7 @@ namespace FlightPlaneris.Storage
 
         public Flights FindFlightById(int id)
         {
-            return _flightStorage.FirstOrDefault(f => f.Id == id);
+            return _context.Flights.FirstOrDefault(f => f.Id == id);
         }
 
         public List<Flights> SearchFlights(SearchFlightsRequest req)

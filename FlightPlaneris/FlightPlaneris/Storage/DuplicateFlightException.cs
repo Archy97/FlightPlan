@@ -1,10 +1,10 @@
 ﻿using System.Runtime.Serialization;
 
-namespace FlightPlaneris
+namespace FlightPlaneris.Storage
 {
     public class DuplicateFlightException : Exception
     {
-        public DuplicateFlightException(): base("Duplicate Flight")
+        public DuplicateFlightException() : base("Duplicate Flight")
         {
         }
     }

@@ -2,6 +2,8 @@
 using FlightPlaneris.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 
 
 namespace FlightPlaneris.Controllers
@@ -12,30 +14,39 @@ namespace FlightPlaneris.Controllers
     public class AdminApiController : ControllerBase
     {
         private readonly FlightStorage _storage;
-        private static readonly object AddLock = new();
-        private static readonly object DeleteLock = new();
+        private static readonly object Lock = new();
+        
+      
 
-        public AdminApiController()
+        public AdminApiController(FlightStorage storage)
         {
-            _storage = new FlightStorage();
+            _storage = storage;
         }
 
         [Route("flights/{id}")]
         [HttpGet]
         public IActionResult GetFlights(int id)
         {
-            return NotFound();
+            var flight = GetFlights(id);
+
+            if (flight == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(flight);
         }
 
         [Route("flights")]
         [HttpPut]
         public IActionResult PutFlights(Flights flight)
         {
-            lock (AddLock)
+            lock (Lock)
             {
                 try
                 {
                     _storage.AddFlight(flight);
+                    
                     return Created("", flight);
                 }
                 catch (InvalidFlightException)
@@ -61,11 +72,9 @@ namespace FlightPlaneris.Controllers
         [HttpDelete]
         public IActionResult DeleteFlights(int id)
         {
-            lock (DeleteLock)
-            {
-            
-
-                _storage.DeleteById(id);
+            lock (Lock)
+            { 
+                 _storage.DeleteById(id); 
 
                 return Ok();
             }

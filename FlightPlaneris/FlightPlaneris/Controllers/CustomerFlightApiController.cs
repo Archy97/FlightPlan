@@ -12,9 +12,9 @@ namespace FlightPlaneris.Controllers
     {
         private readonly FlightStorage _storage;
 
-        public CustomerFlightApiController()
+        public CustomerFlightApiController(FlightStorage storage)
         {
-            _storage = new FlightStorage();
+            _storage = storage;
         }
 
         [Route("airports")]
