@@ -10,11 +10,9 @@ namespace FlightPlaneris.Controllers
     {
         private readonly FlightStorage _storage;
      
-        /// <inheritdoc />
         public CleanUpApiController(FlightStorage storage)
         {
             _storage = storage;
-
         }
 
         [Route("clear")]

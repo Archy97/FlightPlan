@@ -1,13 +1,13 @@
 ﻿using FlightPlaneris.Module;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FlightPlaneris.Storage
 {
     public class FlightStorage
     {
-        private static List<Flights> _flightStorage = new List<Flights>();
-        private static int _id;
         private readonly FlightPlannerDbContext _context;
 
         public FlightStorage(FlightPlannerDbContext context)
@@ -15,9 +15,9 @@ namespace FlightPlaneris.Storage
             _context = context;
         }
 
-        public Flights GetFlight(int id)
+        public Flights GetFlights(int id)
         {
-            return   _context.Flights.
+            return _context.Flights.
                 Include(f => f.From).
                 Include(f => f.To).FirstOrDefault(f => f.Id == id);
         }
@@ -38,7 +38,7 @@ namespace FlightPlaneris.Storage
             }
 
             if (flight.From.AirportCode.ToLower().Trim().Equals(flight.To.AirportCode.ToLower().Trim()))
-             
+
             {
                 throw new WrongAirportException();
             }
@@ -66,17 +66,14 @@ namespace FlightPlaneris.Storage
 
         public void DeleteById(int id)
         {
-
             var flightToDelete = _context.Flights.FirstOrDefault(f => f.Id == id);
 
             if (flightToDelete != null)
             {
                 _context.Flights.Remove(flightToDelete);
                 _context.SaveChanges();
-               
-            }
 
-            
+            }
         }
 
         public void Clear()
@@ -86,23 +83,29 @@ namespace FlightPlaneris.Storage
             _context.SaveChanges();
         }
 
-        public Flights SearchAirport(string search)
+        public List<Airport> SearchAirport(string search)
         {
-            var flight = 
-                _flightStorage.FirstOrDefault(s => new[] { s.From.Country , s.From.City , s.From.AirportCode}
-                .Any(att => att.ToLower().Contains(search.ToLower().Trim())));
+            search = search.Trim().ToLower();
 
-            return flight;
+            var airports = _context.Airports.AsEnumerable()
+                .Where(flight =>
+                    flight.City.ToLower().Contains(search) ||
+                    flight.Country.ToLower().Contains(search) ||
+                    flight.AirportCode.ToLower().Contains(search))
+                .ToList();
+
+            return airports;
         }
 
         public Flights FindFlightById(int id)
         {
-            return _context.Flights.FirstOrDefault(f => f.Id == id);
+            return _context.Flights.Include(f => f.From).
+                Include(f => f.To).FirstOrDefault(f => f.Id == id);
         }
 
         public List<Flights> SearchFlights(SearchFlightsRequest req)
         {
-            return _flightStorage.Where(r => r.From.AirportCode.Equals(req.from)
+            return _context.Flights.Where(r => r.From.AirportCode.Equals(req.from)
                                              && r.To.AirportCode.Equals(req.to)
                                              && r.DepartureTime.Contains(req.departureDate)).ToList();
         }

@@ -3,6 +3,7 @@ using FlightPlaneris.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightPlaneris.Controllers
 {
@@ -21,11 +22,9 @@ namespace FlightPlaneris.Controllers
         [HttpGet]
         public IActionResult SearchAirports(string search)
         {
-           var flight = _storage.SearchAirport(search);
+            var flight = _storage.SearchAirport(search);
 
-           var result = new[] { flight.From };
-
-           return Ok(result);
+            return Ok(flight);
         }
 
         [Route("flights/{id}")]

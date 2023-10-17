@@ -15,8 +15,6 @@ namespace FlightPlaneris.Controllers
     {
         private readonly FlightStorage _storage;
         private static readonly object Lock = new();
-        
-      
 
         public AdminApiController(FlightStorage storage)
         {
@@ -25,9 +23,9 @@ namespace FlightPlaneris.Controllers
 
         [Route("flights/{id}")]
         [HttpGet]
-        public IActionResult GetFlights(int id)
+        public IActionResult GetFlight(int id)
         {
-            var flight = GetFlights(id);
+            var flight = _storage.GetFlights(id);
 
             if (flight == null)
             {
@@ -46,7 +44,7 @@ namespace FlightPlaneris.Controllers
                 try
                 {
                     _storage.AddFlight(flight);
-                    
+
                     return Created("", flight);
                 }
                 catch (InvalidFlightException)
@@ -73,8 +71,8 @@ namespace FlightPlaneris.Controllers
         public IActionResult DeleteFlights(int id)
         {
             lock (Lock)
-            { 
-                 _storage.DeleteById(id); 
+            {
+                _storage.DeleteById(id);
 
                 return Ok();
             }
