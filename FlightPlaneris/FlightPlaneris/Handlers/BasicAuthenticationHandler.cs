@@ -4,10 +4,9 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 
-namespace FlightPlaneris.Handlers
+namespace FlightPlanner.Handlers
 {
     public class BasicAuthenticationHandler : AuthenticationHandler <AuthenticationSchemeOptions>
     {

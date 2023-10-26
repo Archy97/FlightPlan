@@ -1,69 +1,68 @@
-﻿using FlightPlaneris.Module;
-using FlightPlaneris.Storage;
+﻿using AutoMapper;
+using FlightPlanner.Core.Interfaces;
+using FlightPlanner.Core.Models;
+using FlightPlanner.Core.Services;
+using FlightPlanner.Module;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-
-
-namespace FlightPlaneris.Controllers
+namespace FlightPlanner.Controllers
 {
     [Authorize]
     [Route("admin-api")]
     [ApiController]
     public class AdminApiController : ControllerBase
     {
-        private readonly FlightStorage _storage;
+        private readonly IFlightService _flightService;
+        private readonly IMapper _mapper;
+        private readonly IEnumerable<IValidate> _validator;
         private static readonly object Lock = new();
 
-        public AdminApiController(FlightStorage storage)
+        public AdminApiController(IFlightService flightService, IMapper mapper, IEnumerable<IValidate> validator)
         {
-            _storage = storage;
+            _mapper = mapper;
+            _validator = validator;
+            _flightService = flightService;
         }
 
         [Route("flights/{id}")]
         [HttpGet]
         public IActionResult GetFlight(int id)
         {
-            var flight = _storage.GetFlights(id);
+            var flight = _flightService.GetFullFlightById(id);
 
             if (flight == null)
             {
                 return NotFound();
             }
 
-            return Ok(flight);
+            return Ok(_mapper.Map<FlightRequest>(flight));
         }
 
         [Route("flights")]
         [HttpPut]
-        public IActionResult PutFlights(Flights flight)
+        public IActionResult PutFlights(FlightRequest request)
         {
+            var flight = _mapper.Map<Flights>(request);
+
             lock (Lock)
             {
-                try
+                if (!_validator.All(v => v.IsValid(flight)))
                 {
-                    _storage.AddFlight(flight);
+                    return BadRequest();
+                }
 
-                    return Created("", flight);
-                }
-                catch (InvalidFlightException)
-                {
-                    return BadRequest();
-                }
-                catch (WrongAirportException)
-                {
-                    return BadRequest();
-                }
-                catch (WrongDateException)
-                {
-                    return BadRequest();
-                }
-                catch (DuplicateFlightException)
+                if (_flightService.Exists(flight))
                 {
                     return Conflict();
                 }
+
+                _flightService.Create(flight);
             }
+
+            request = _mapper.Map<FlightRequest>(flight);
+
+                return Created("", request);
         }
 
         [Route("flights/{id}")]
@@ -72,7 +71,8 @@ namespace FlightPlaneris.Controllers
         {
             lock (Lock)
             {
-                _storage.DeleteById(id);
+                var flight = _flightService.GetFullFlightById(id);
+                if (flight != null) _flightService.Delete(flight);
 
                 return Ok();
             }

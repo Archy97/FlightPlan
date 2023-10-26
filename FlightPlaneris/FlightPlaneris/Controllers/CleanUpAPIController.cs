@@ -1,28 +1,25 @@
-﻿using FlightPlaneris.Storage;
-using Microsoft.AspNetCore.Http;
+﻿using FlightPlanner.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FlightPlaneris.Controllers
+namespace FlightPlanner.Controllers;
+
+[Route("testing-api")]
+[ApiController]
+public class CleanUpApiController : ControllerBase
 {
-    [Route("testing-api")]
-    [ApiController]
-    public class CleanUpApiController : ControllerBase
+    private readonly ICleanUpService _cleanUpService;
+
+    public CleanUpApiController(ICleanUpService cleanUpService)
     {
-        private readonly FlightStorage _storage;
-     
-        public CleanUpApiController(FlightStorage storage)
-        {
-            _storage = storage;
-        }
+        _cleanUpService = cleanUpService;
+    }
 
-        [Route("clear")]
-        [HttpPost]
+    [Route("clear")]
+    [HttpPost]
+    public IActionResult Clear()
+    {
+        _cleanUpService.CleanUpDatabase();
 
-        public IActionResult Clear()
-        {
-            _storage.Clear();
-
-            return Ok();
-        }
+        return Ok();
     }
 }

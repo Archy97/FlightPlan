@@ -1,9 +1,16 @@
-using FlightPlaneris.Handlers;
-using FlightPlaneris.Storage;
+using AutoMapper;
+using FlightPlanner.Core.Interfaces;
+using FlightPlanner.Core.Models;
+using FlightPlanner.Core.Services;
+using FlightPlanner.Data;
+using FlightPlanner.Handlers;
+using FlightPlanner.Services;
+using FlightPlanner.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlightPlaneris
+
+namespace FlightPlanner
 {
     public class Program
     {
@@ -17,7 +24,21 @@ namespace FlightPlaneris
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddDbContext<FlightPlannerDbContext>(options => options
                 .UseSqlServer(builder.Configuration.GetConnectionString("flight-planner")));
-            builder.Services.AddTransient<FlightStorage>();
+            builder.Services.AddTransient<IDbService, DbService>();
+            builder.Services.AddTransient<IFlightService, FlightService>();
+            builder.Services.AddTransient<IEntityService<Airport>, EntityService<Airport>>();
+            builder.Services.AddTransient<IEntityService<Flights>, EntityService<Flights>>();
+            builder.Services.AddTransient<ICleanUpService, CleanUpService>();
+            builder.Services.AddTransient<IFlightPlannerDbContext, FlightPlannerDbContext>();
+            builder.Services.AddTransient<IAirportService, AirportService>();
+            builder.Services.AddTransient<IValidate, AirportValuesValidation>();
+            builder.Services.AddTransient<IValidate, FlightValuesValidation>();
+            builder.Services.AddTransient<IValidate, SameAirportValidation>();
+            builder.Services.AddTransient<IValidate, StrangeDateValidation>();
+            builder.Services.AddTransient<IValidateSearch, AirportSearchValidation>();
+
+            var mapper = AutoMapperConfig.CreateMapper();
+            builder.Services.AddSingleton(mapper);
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAuthentication("BasicAuthentication")

@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "2jtwbWYfy3j9VW/fBNwtn4zwptqiCx69pWa+yY7pX0Wykh99cRzL22NMAdGo/DmFG+/OBN3NSVt4nd9ShGJsEA==",
+  "dgSpecHash": "PFysW6/mEtIItCuwuLegYoSO4HVneh1KI1fd9nLwIrAibNFinYtBUJfD5IJ9pdbpWDqwwTr5uh6bFQssUdw5TA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\sivil\\source\\repos\\FlightPlan\\FlightPlaneris\\FlightPlaneris\\FlightPlaneris.csproj",
+  "projectFilePath": "C:\\Users\\sivil\\source\\repos\\FlightPlan\\FlightPlaneris\\FlightPlaneris\\FlightPlanner.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\sivil\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\sivil\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
-    "C:\\Users\\sivil\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\sivil\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\sivil\\.nuget\\packages\\microsoft.data.sqlclient\\2.1.4\\microsoft.data.sqlclient.2.1.4.nupkg.sha512",
     "C:\\Users\\sivil\\.nuget\\packages\\microsoft.data.sqlclient.sni.runtime\\2.1.1\\microsoft.data.sqlclient.sni.runtime.2.1.1.nupkg.sha512",
     "C:\\Users\\sivil\\.nuget\\packages\\microsoft.entityframeworkcore\\6.0.23\\microsoft.entityframeworkcore.6.0.23.nupkg.sha512",
